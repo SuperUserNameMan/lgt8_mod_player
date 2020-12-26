@@ -3,7 +3,7 @@ Play modules soundtracks on a LGT8F32p.
 
 This is a quick and dirty port of [pocketmod](https://github.com/rombankzero/pocketmod) to LGT8F328p.
 
-It is limited to 4 channels .MOD [modules](https://en.wikipedia.org/wiki/MOD_(file_format)), with 15 to 31 instruments.
+It is limited to 4 channels .MOD [modules](https://en.wikipedia.org/wiki/MOD_(file_format)), with 15 instruments max.
 
 The audio is outputed through the digital to analog output (DAC0) to which you may want to connect an audio amplifier.
 The sketch is designed to adapt automatically to the `F_CPU`, and at 32MHz, it will play at ~12KHz sample rate.
