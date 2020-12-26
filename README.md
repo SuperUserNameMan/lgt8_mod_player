@@ -13,3 +13,4 @@ Several modules are included as a demo for test and debug purpose. Their origina
 If you want to play a tune of your choice, it has to be `.MOD`, 4 channels, and small ennough to fit into the flash.
 The module file has to be converted from binary to an 8bits array in a C header (I don't rememebr how I did that ...), and then it is compiled with the rest of the sketch and is stored as PROGMEM.
 
+PS : I don't remember, but I think it should work on ATmega328p if you don't define `MOD_DIRECT_PGM`, and if you output the sample through a high speed PWM.
