@@ -1,26 +1,32 @@
 #pragma GCC optimize("Ofast")
-//#pragma GCC optimize("O3")
-//#pragma GCC optimize("O2")
-//#pragma GCC optimize("O1")
-//#pragma GCC optimize("O0")
+//~ #pragma GCC optimize("O3")
+//~ #pragma GCC optimize("O2")
+//~ #pragma GCC optimize("O1")
+//~ #pragma GCC optimize("O0")
 
 volatile const PROGMEM
 #include "tunes/tune.h" // OK ? (first channel is missing sometimes ?)
-//#include "tunes/tune_1.h" // random freeze, crashes
-//#include "tunes/tune_for_nothing.h" // OK ?
-//#include "tunes/tune_free.h" // OK ?
-//#include "tunes/tune_it_in.h" // OK ?
-//#include "tunes/tune_me_in_sucka_.h" // crash
-//#include "tunes/tune-o-matic_3.h" // OK ?
-//#include "tunes/tune-o-matic_5.h" // OK ?
+//~ #include "tunes/tune_1.h" // random freeze, crashes
+//~ #include "tunes/tune_for_nothing.h" // OK ?
+//~ #include "tunes/tune_free.h" // OK ?
+//~ #include "tunes/tune_it_in.h" // OK ?
+//~ #include "tunes/tune_me_in_sucka_.h" // crash
+//~ #include "tunes/tune-o-matic_3.h" // OK ?
+//~ #include "tunes/tune-o-matic_5.h" // OK ?
 
 
 // ---------------------------------------------------------------------
 
-//#define MOD_DEBUG
-//#define MOD_DEBUG_ORDER_POS 1
-//#define MOD_DEBUG_CHAN 1
+//~ #define MOD_DEBUG
+//~ #define MOD_DEBUG_ORDER_POS 1
+//~ #define MOD_DEBUG_CHAN 1
 #define MOD_DIRECT_PGM
+//~ #define MOD_PWM_AUDIO // --- TO BE TESTED AND DEBUGGED
+
+#ifndef __LGT8F__
+	#undef MOD_DIRECT_PGM
+	#define MOD_PWM_AUDIO
+#endif
 
 #include "mod_player.h"
 
@@ -43,10 +49,15 @@ void setup()
 	
 	delay(1000);
 	
+#ifdef MOD_PWM_AUDIO
+	pinMode(3,OUTPUT);
+	TCCR2B = TCCR2B & B11111000 | B00000001; // for PWM frequency of 31372.55 Hz
+#else
 	analogReference(DEFAULT);
 	pinMode(DAC0, ANALOG);
+#endif
 	
-	Serial.begin(500000);
+	Serial.begin(115200);
 	
 	int err = mod_init( &ctx, tune_mod, tune_mod_len, AUDIO_SPS );
 	if ( err )
@@ -56,13 +67,20 @@ void setup()
 	
 #ifdef MOD_DEBUG
 	char tag[5];
-	Serial.print(F("Mod title : ")); Serial.println( (char*)ctx.source );
+	
+	Serial.print(F("Mod title : "));
+		#ifdef MOD_DIRECT_PGM
+			Serial.println( (char*)ctx.source_pgm );
+		#else
+			char buffer[32]; strcpy_P( buffer, ctx.source_pgm );
+			Serial.println( buffer );
+		#endif
 	Serial.print(F("mod tag   : ")); Serial.println( mod_tag( &ctx, tag ) );
 	
 	Serial.print(F("song len  : ")); Serial.println( ctx.order_len );
 	Serial.print(F("patterns  : ")); Serial.println( ctx.n_patterns );
 	Serial.print(F("song rst  : ")); Serial.println( ctx.order_reset );
-	Serial.print(F("pat. data : ")); Serial.print( (uint16_t)ctx.patterns_data, HEX ); Serial.print(F("[")); Serial.print( ctx.patterns_data_len );Serial.println(F("]"));
+	Serial.print(F("pat. data : 0x")); Serial.print( (uint16_t)ctx.patterns_data_pgm, HEX ); Serial.print(F("[")); Serial.print( ctx.patterns_data_len );Serial.println(F("]"));
 	
 	Serial.print(F("n samples : ")); Serial.println( ctx.n_samples );
 	
@@ -70,9 +88,9 @@ void setup()
 	{
 		Serial.print(F("Sample["));
 		Serial.print(i);
-		Serial.print(F("]="));
-		Serial.print((uint16_t)ctx.samples[i].data,HEX);
-		Serial.print(F("["));
+		Serial.print(F("]=0x")); // address of the sample into the .MOD
+		Serial.print((uint16_t)ctx.samples[i].data_pgm,HEX); 
+		Serial.print(F("[")); // length of the sample 
 		Serial.print((uint16_t)ctx.samples[i].data_len, HEX);
 		Serial.println(F("]"));
 	}
@@ -123,10 +141,13 @@ void loop()
 	}
 #endif
 		//Serial.println( sample );
-		
+
+#ifdef MOD_PWM_AUDIO
+		digitalWrite( 3, sample );
+#else
 		DALR = (uint8_t)( sample );
 		//DALR = (uint8_t)( ( sample / 64 ) + 128 );
-		
+#endif	
 		digitalWrite( LED_BUILTIN, !(ctx.pattern_line % 4) );
 		
 		while( (micros()-t0) < AUDIO_DT );
