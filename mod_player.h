@@ -23,7 +23,7 @@
 
 typedef struct
 {
-	const volatile int8_t *data;
+	const volatile int8_t *data_pgm;
 	uint16_t data_len;
 	
 } mod_sample;
@@ -67,18 +67,18 @@ typedef struct
 
 typedef struct
 {
-	const volatile uint8_t *source;
+	const volatile uint8_t *source_pgm;
 	uint16_t source_len;
 	
 	mod_sample samples[MOD_SAMPLES_MAX];
 	uint8_t  n_samples;
 		
-	const volatile uint8_t *order;
+	const volatile uint8_t *order_pgm;
 	uint8_t  order_len;
 	uint8_t  order_reset;
 	uint8_t  order_pos;
 	
-	const volatile uint8_t *patterns_data;
+	const volatile uint8_t *patterns_data_pgm;
 	uint16_t patterns_data_len; // in bytes
 	 int8_t  pattern_line;
 	uint8_t  pattern_line_tick;
@@ -204,11 +204,11 @@ void mod_next_line( mod_ctx *ctx )
 #endif
 		ctx->pattern_line = 0;
 	}
-	
+
 #ifdef MOD_DIRECT_PGM
-	const uint8_t (*data)[4] = (uint8_t(*)[4])( ctx->patterns_data + ( ctx->order[ ctx->order_pos ] * 64 + ctx->pattern_line ) * ctx->n_channels * 4 );
+	const uint8_t (*data_pgm)[4] = (uint8_t(*)[4])( ctx->patterns_data_pgm + ( MOD_PGM( ctx->order_pgm, ctx->order_pos ) * 64 + ctx->pattern_line ) * ctx->n_channels * 4 );
 #else
-	const uint8_t (*data)[4] = (uint8_t(*)[4])( ctx->patterns_data + ( ctx->order[ ctx->order_pos ] * 64 + ctx->pattern_line ) * ctx->n_channels * 4 );
+	const uint8_t (*data_pgm)[4] = (uint8_t(*)[4])( ctx->patterns_data_pgm + ( MOD_PGM( ctx->order_pgm, ctx->order_pos ) * 64 + ctx->pattern_line ) * ctx->n_channels * 4 );
 #endif
 	
 #ifdef MOD_DEBUG_CHAN
@@ -218,10 +218,10 @@ void mod_next_line( mod_ctx *ctx )
 #endif
 	{
 		mod_chan *chan = &ctx->channels[ i ];
-		
-		int sample =  ( data[i][0] & 0xf0 ) | (data[i][2] >> 4);
-		int period = (( data[i][0] & 0x0f ) << 8 ) | data[i][1];
-		int effect = (( data[i][2] & 0x0f ) << 8 ) | data[i][3];
+
+		int sample = (  MOD_PGM(data_pgm[i], 0 ) & 0xf0        ) | ( MOD_PGM(data_pgm[i], 2 ) >> 4);
+		int period = (( MOD_PGM(data_pgm[i], 0 ) & 0x0f ) << 8 ) |   MOD_PGM(data_pgm[i], 1 );
+		int effect = (( MOD_PGM(data_pgm[i], 2 ) & 0x0f ) << 8 ) |   MOD_PGM(data_pgm[i], 3 );
 		
 #ifdef MOD_DEBUG
 		Serial.print( sample );
@@ -250,12 +250,9 @@ void mod_next_line( mod_ctx *ctx )
 			if ( sample <= MOD_SAMPLES_MAX )
 			{
 				chan->sample_id = sample;
-				//chan->finetune  = ctx->source[ MOD_SAMPLE_INFO_ADR( sample-1, MOD_SAMPLE_INFO_PARAM_FINETUNE ) ] & 0x0f;
-			#ifdef MOD_DIRECT_PGM
-				chan->volume    = MOD_MIN( 64, ctx->source[ MOD_SAMPLE_INFO_ADR( sample-1, MOD_SAMPLE_INFO_PARAM_VOLUME ) ] );
-			#else
-				chan->volume    = MOD_MIN( 64, pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( sample-1, MOD_SAMPLE_INFO_PARAM_VOLUME ) ) );
-			#endif
+				//chan->finetune  = MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( sample-1, MOD_SAMPLE_INFO_PARAM_FINETUNE ) ] ) & 0x0f;
+
+				chan->volume    = MOD_MIN( 64, MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( sample-1, MOD_SAMPLE_INFO_PARAM_VOLUME ) ) );
 				
 				if (chan->fx != 0xED) 
 				{
@@ -599,33 +596,23 @@ int16_t mod_render_channel( mod_ctx *ctx, mod_chan *chan, uint32_t dt )
 	
 	mod_sample *sample = &ctx->samples[ chan->sample_id - 1 ];
 	
-#ifdef MOD_DIRECT_PGM
-	const volatile uint8_t *data;
-	
-	data = &ctx->source[ MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_START ) ];
-	uint16_t loop_start  = ( data[0]<<9 ) + ( data[1]<<1 );
-		
-	data = &ctx->source[ MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_LENGTH ) ];
-	uint16_t loop_length = ( data[0]<<9 ) + ( data[1]<<1 );
-#else
 	uint16_t loop_start =
-		( pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_START ) + 0 ) << 9 )
+		( MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_START ) + 0 ) << 9 )
 		+
-		( pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_START ) + 1 ) << 1 )
+		( MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_START ) + 1 ) << 1 )
 		;
 		
 	uint16_t loop_length =
-		( pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_LENGTH ) + 0 ) << 9 )
+		( MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_LENGTH ) + 0 ) << 9 )
 		+
-		( pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_LENGTH ) + 1 ) << 1 )
+		( MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( chan->sample_id-1, MOD_SAMPLE_INFO_PARAM_LOOP_LENGTH ) + 1 ) << 1 )
 		;
-#endif
 	
 	uint16_t loop_end = loop_length > 2 ? loop_start + loop_length : 0;
 	
 #ifdef MOD_DEBUG
 	//~ Serial.println( chan->sample_id );
-	//~ Serial.println( (uint16_t)sample->data - (uint16_t)ctx->source );
+	//~ Serial.println( (uint16_t)sample->data_pgm - (uint16_t)ctx->source_pgm );
 	//~ Serial.println( loop_start );
 	//~ Serial.println( loop_length);
 	//~ Serial.println( loop_end );
@@ -637,7 +624,7 @@ int16_t mod_render_channel( mod_ctx *ctx, mod_chan *chan, uint32_t dt )
 	int8_t s = 0;
 	if ( (uint16_t)chan->position < sample->data_len )
 	{
-		s = sample->data[ MOD_MIN( (uint16_t)chan->position, sample->data_len ) ];
+		s = MOD_PGM( sample->data_pgm, MOD_MIN( (uint16_t)chan->position, sample->data_len ) );
 		chan->position += chan->increment;
 	}
 	
@@ -710,11 +697,7 @@ char* mod_tag( mod_ctx *ctx, char* str )
 {
 	for( auto i=0; i<4; i++ )
 	{
-		#ifdef MOD_DIRECT_PGM
-			str[ i ] = ctx->source[ 1080 + i ];
-		#else
-			str[ i ] = pgm_read_byte( ctx->source + 1080 + i );
-		#endif
+		str[ i ] = MOD_PGM( ctx->source_pgm, 1080 + i );
 	}
 	str[ 4 ] = 0;
 	
@@ -750,18 +733,12 @@ int mod_identification( mod_ctx *ctx )
 		ctx->n_channels = mod_tag_to_channels( ctx );
 		
 		if ( ctx->n_channels == 0 ) return __LINE__;
-#ifdef MOD_DIRECT_PGM
-		ctx->order_len     =  ctx->source[950];
-		ctx->order_reset   =  ctx->source[951] >= ctx->order_len ? 0 : ctx->source[951];
-		ctx->order         = &ctx->source[952];
-		ctx->patterns_data = &ctx->source[1084];
-#else
-		ctx->order_len     =  pgm_read_byte( ctx->source + 950 );
-		ctx->order_reset   =  pgm_read_byte( ctx->source + 951 ) >= ctx->order_len ? 0 : pgm_read_byte( ctx->source + 951 );
-		ctx->order         =  ctx->source + 952;
-		ctx->patterns_data =  ctx->source + 1084;
-#endif
-		
+
+		ctx->order_len     =  MOD_PGM( ctx->source_pgm, 950 );
+		ctx->order_reset   =  MOD_PGM( ctx->source_pgm, 951 ) >= ctx->order_len ? 0 : MOD_PGM( ctx->source_pgm, 951 );
+		ctx->order_pgm         =  ctx->source_pgm + 952;
+		ctx->patterns_data_pgm =  ctx->source_pgm + 1084;
+	
 		ctx->n_samples     = MOD_MIN( MOD_SAMPLES_MAX, 31 );
 		
 		return 0;
@@ -777,11 +754,7 @@ int mod_identification( mod_ctx *ctx )
 	// song title must be ASCII and 0
 	for( int i=0; i<20; i++ ) 
 	{
-	#ifdef MOD_DIRECT_PGM
-		char c = (char)ctx->source[i];
-	#else
-		char c = (char)pgm_read_byte( ctx->source + i );
-	#endif
+		char c = (char)MOD_PGM( ctx->source_pgm, i );
 		
 		if ( c != 0 && ( c < ' ' || c > '~' ) )
 		{
@@ -794,11 +767,8 @@ int mod_identification( mod_ctx *ctx )
 	{
 		for( int j=0; j<22; j++ )
 		{
-		#ifdef MOD_DIRECT_PGM
-			char c = (char)ctx->source[ MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_NAME ) + j ];
-		#else
-			char c = (char)pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_NAME ) + j );
-		#endif
+			char c = (char)MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_NAME ) + j );
+		
 			if ( c != 0 && ( c < ' ' || c > '~' ) )
 			{
 				return __LINE__;
@@ -809,17 +779,10 @@ int mod_identification( mod_ctx *ctx )
 	
 	// seems valid 15 instruments mod
 
-#ifdef MOD_DIRECT_PGM
-	ctx->order_len     =  ctx->source[470];
-	ctx->order_reset   =  ctx->source[471] >= ctx->order_len ? 0 : ctx->source[471];
-	ctx->order         = &ctx->source[472];
-	ctx->patterns_data = &ctx->source[600];
-#else
-	ctx->order_len     =  pgm_read_byte( ctx->source + 470 );
-	ctx->order_reset   =  pgm_read_byte( ctx->source + 471 ) >= ctx->order_len ? 0 : pgm_read_byte( ctx->source + 471 );
-	ctx->order         = ctx->source + 472;
-	ctx->patterns_data = ctx->source + 600;
-#endif
+	ctx->order_len     =  MOD_PGM( ctx->source_pgm, 470 );
+	ctx->order_reset   =  MOD_PGM( ctx->source_pgm, 471 ) >= ctx->order_len ? 0 : MOD_PGM( ctx->source_pgm, 471 );
+	ctx->order_pgm         = ctx->source_pgm + 472;
+	ctx->patterns_data_pgm = ctx->source_pgm + 600;
 	
 	ctx->n_samples     = MOD_MIN( MOD_SAMPLES_MAX, 15 );
 	ctx->n_channels    = 4;
@@ -827,14 +790,14 @@ int mod_identification( mod_ctx *ctx )
 	return 0;
 }
 
-int mod_init( mod_ctx *ctx, const volatile uint8_t *source, uint16_t source_len, uint16_t max_sps )
+int mod_init( mod_ctx *ctx, const volatile uint8_t *source_pgm, uint16_t source_len, uint16_t max_sps )
 {
 	memset( ctx, 0, sizeof(mod_ctx) );
 
 #ifdef MOD_DIRECT_PGM
-	ctx->source     = (uint8_t*)((uint16_t)source + 0x4000);
+	ctx->source_pgm     = (uint8_t*)((uint16_t)source_pgm + 0x4000);
 #else
-	ctx->source     = source;
+	ctx->source_pgm     = source_pgm;
 #endif
 	ctx->source_len = source_len;
 	
@@ -851,9 +814,9 @@ int mod_init( mod_ctx *ctx, const volatile uint8_t *source, uint16_t source_len,
 	
 	ctx->n_patterns = 0;
 	
-	for( int i=0; ( i < 128 ) && ( ctx->order[i] < 128 ) ; i++ )
+	for( int i=0; ( i < 128 ) && ( MOD_PGM( ctx->order_pgm, i ) < 128 ) ; i++ )
 	{
-		ctx->n_patterns = MOD_MAX( ctx->n_patterns, ctx->order[i] );
+		ctx->n_patterns = MOD_MAX( ctx->n_patterns, MOD_PGM( ctx->order_pgm, i ) );
 	}
 	
 	ctx->n_patterns++;
@@ -862,23 +825,18 @@ int mod_init( mod_ctx *ctx, const volatile uint8_t *source, uint16_t source_len,
 	
 	// initilize the samples
 	
-	const volatile int8_t *samples_data = (int8_t*)( (uint16_t)ctx->patterns_data + ctx->patterns_data_len );
+	const volatile int8_t *samples_data_pgm = (int8_t*)( (uint16_t)ctx->patterns_data_pgm + ctx->patterns_data_len );
 		
 	for( int i=0; i < ctx->n_samples; i++ )
 	{
-#ifdef MOD_DIRECT_PGM
-		const volatile uint8_t *sample_info = &ctx->source[ MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_LENGTH ) ];
-		uint16_t len = ( ( sample_info[0] << 8 ) | ( sample_info[1] ) ) << 1;
-#else
 		uint16_t len = 
-			( pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_LENGTH ) + 0 ) << 8 )
+			( MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_LENGTH ) + 0 ) << 8 )
 			|
-			( pgm_read_byte( ctx->source + MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_LENGTH ) + 1 ) << 1 )
+			( MOD_PGM( ctx->source_pgm, MOD_SAMPLE_INFO_ADR( i, MOD_SAMPLE_INFO_PARAM_LENGTH ) + 1 ) << 1 )
 			;			
-#endif
 		ctx->samples[ i ].data_len = len > 2 ? len : 0;
-		ctx->samples[ i ].data     = samples_data;
-		samples_data += ctx->samples[ i ].data_len;
+		ctx->samples[ i ].data_pgm = samples_data_pgm;
+		samples_data_pgm += ctx->samples[ i ].data_len;
 	}
 	
 	// default setrtings
