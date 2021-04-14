@@ -1,0 +1,73 @@
+<circuit reactStep="50" Speed_sps="1000000" Speed_per="100" Simu_Step_nS="1000" animate="0" noLinAcc="5" type="simulide_0.4">
+
+Unique  Id: Tunnel-189: 
+Circuit Id: Tunnel-189
+<item valLabely="0" vflip="1" labelrot="0" circRot="3.904472256977e-312" y="-304" mainComp="false" Uid="" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="-16" itemtype="Tunnel" objectName="Tunnel-189" Show_id="false" boardRot="-1e+06" x="-296" valLabRot="0" Rotated="true" id="Tunnel-189" labely="-24" valLabelx="0" rotation="0" Name="ADAC"/>
+
+Unique  Id: DAC-182: 
+Circuit Id: DAC-182
+<item valLabely="0" vflip="1" labelrot="0" circRot="0" y="-296" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="-16" itemtype="DAC" objectName="DAC-182" Show_id="false" boardRot="-1e+06" Vref="5" Input_Imped="1e+14" x="-340" valLabRot="0" Input_Low_V="2.5" id="DAC-182" labely="-24" valLabelx="0" Input_High_V="2.5" rotation="0" Num_Bits="6"/>
+
+Unique  Id: Tunnel-113: 
+Circuit Id: Tunnel-113
+<item valLabely="0" vflip="1" labelrot="0" circRot="8.78506257652e-312" y="-492" mainComp="false" Uid="" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="-16" itemtype="Tunnel" objectName="Tunnel-113" Show_id="false" boardRot="-1e+06" x="-424" valLabRot="0" Rotated="false" id="Tunnel-113" labely="-24" valLabelx="0" rotation="0" Name="ADAC"/>
+
+Unique  Id: Ground-111: 
+Circuit Id: Ground-111
+<item valLabely="0" vflip="1" labelrot="0" circRot="259" y="-444" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="-16" itemtype="Ground" objectName="Ground-111" Show_id="false" boardRot="-1e+06" x="-376" valLabRot="0" id="Ground-111" labely="8" valLabelx="0" rotation="0"/>
+
+Unique  Id: AudioOut-110: 
+Circuit Id: AudioOut-110
+<item valLabely="0" vflip="1" Impedance="8" labelrot="0" circRot="1.71881659102e-312" y="-484" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="-20" itemtype="AudioOut" objectName="AudioOut-110" Show_id="false" boardRot="-1e+06" Buzzer="false" x="-328" valLabRot="0" id="AudioOut-110" labely="-36" valLabelx="0" rotation="0"/>
+
+Unique  Id: Tunnel-108: 
+Circuit Id: Tunnel-108
+<item valLabely="0" vflip="1" labelrot="0" circRot="8.78506257652e-312" y="-344" mainComp="false" Uid="" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="-16" itemtype="Tunnel" objectName="Tunnel-108" Show_id="false" boardRot="-1e+06" x="-476" valLabRot="0" Rotated="false" id="Tunnel-108" labely="-24" valLabelx="0" rotation="0" Name="PWM"/>
+
+Unique  Id: Nano-2: 
+Circuit Id: Nano-2
+<item valLabely="75" vflip="1" labelrot="0" circRot="0" y="-400" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="0" itemtype="Subcircuit" objectName="Nano-2" Show_id="true" boardRot="-1e+06" BoardId="" x="-436" valLabRot="-90" id="Nano-2" labely="-20" valLabelx="29" Logic_Symbol="false" rotation="0">
+  <mainCompProps Program="lgt8_mod_player.hex" Auto_Load="false" Init_gdb="false" Logic_Symbol="false" Mhz="16"/>
+ </item>
+
+Unique  Id: Connector-112: 
+Circuit Id: Connector-112
+<item valLabely="0" vflip="1" labelrot="0" circRot="0" y="-460" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="Ground-111-Gnd" labelx="-16" itemtype="Connector" objectName="Connector-112" enodeid="enode-112" endpinid="AudioOut-110-rPin" Show_id="false" boardRot="-1e+06" x="-376" valLabRot="0" id="Connector-112" labely="-24" pointList="-376,-460,-376,-484,-344,-484" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-128: 
+Circuit Id: Connector-128
+<item valLabely="0" vflip="1" labelrot="0" circRot="1.9226213e-316" y="-344" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="Tunnel-108-pin" labelx="-16" itemtype="Connector" objectName="Connector-128" enodeid="enode-181" endpinid="Nano-2-3" Show_id="false" boardRot="-1e+06" x="-476" valLabRot="0" id="Connector-128" labely="-24" pointList="-476,-344,-428,-344" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-181: 
+Circuit Id: Connector-181
+<item valLabely="0" vflip="1" labelrot="0" circRot="1.1126041550956851e-306" y="-492" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="Tunnel-113-pin" labelx="-16" itemtype="Connector" objectName="Connector-181" enodeid="enode-181" endpinid="AudioOut-110-lPin" Show_id="false" boardRot="-1e+06" x="-424" valLabRot="0" id="Connector-181" labely="-24" pointList="-424,-492,-344,-492" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-183: 
+Circuit Id: Connector-183
+<item valLabely="0" vflip="1" labelrot="0" circRot="-4.653735800328269e+129" y="-336" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="DAC-182-in5" labelx="-16" itemtype="Connector" objectName="Connector-183" enodeid="enode-183" endpinid="Nano-2-A5" Show_id="false" boardRot="-1e+06" x="-364" valLabRot="0" id="Connector-183" labely="-24" pointList="-364,-336,-380,-336" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-184: 
+Circuit Id: Connector-184
+<item valLabely="0" vflip="1" labelrot="0" circRot="1.529742521715283e-308" y="-328" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="DAC-182-in4" labelx="-16" itemtype="Connector" objectName="Connector-184" enodeid="enode-184" endpinid="Nano-2-A4" Show_id="false" boardRot="-1e+06" x="-364" valLabRot="0" id="Connector-184" labely="-24" pointList="-364,-328,-380,-328" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-185: 
+Circuit Id: Connector-185
+<item valLabely="0" vflip="1" labelrot="0" circRot="9.346125063511598e-307" y="-320" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="DAC-182-in3" labelx="-16" itemtype="Connector" objectName="Connector-185" enodeid="enode-185" endpinid="Nano-2-A3" Show_id="false" boardRot="-1e+06" x="-364" valLabRot="0" id="Connector-185" labely="-24" pointList="-364,-320,-380,-320" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-186: 
+Circuit Id: Connector-186
+<item valLabely="0" vflip="1" labelrot="0" circRot="9.346125063511598e-307" y="-312" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="DAC-182-in2" labelx="-16" itemtype="Connector" objectName="Connector-186" enodeid="enode-186" endpinid="Nano-2-A2" Show_id="false" boardRot="-1e+06" x="-364" valLabRot="0" id="Connector-186" labely="-24" pointList="-364,-312,-380,-312" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-187: 
+Circuit Id: Connector-187
+<item valLabely="0" vflip="1" labelrot="0" circRot="6.95333497463137e-310" y="-304" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="DAC-182-in1" labelx="-16" itemtype="Connector" objectName="Connector-187" enodeid="enode-187" endpinid="Nano-2-A1" Show_id="false" boardRot="-1e+06" x="-364" valLabRot="0" id="Connector-187" labely="-24" pointList="-364,-304,-380,-304" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-188: 
+Circuit Id: Connector-188
+<item valLabely="0" vflip="1" labelrot="0" circRot="9.346125063511598e-307" y="-296" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="DAC-182-in0" labelx="-16" itemtype="Connector" objectName="Connector-188" enodeid="enode-188" endpinid="Nano-2-A0" Show_id="false" boardRot="-1e+06" x="-364" valLabRot="0" id="Connector-188" labely="-24" pointList="-364,-296,-380,-296" valLabelx="0" rotation="0"/>
+
+Unique  Id: Connector-190: 
+Circuit Id: Connector-190
+<item valLabely="0" vflip="1" labelrot="0" circRot="-8.277868684162361e-220" y="-304" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" startpinid="Tunnel-189-pin" labelx="-16" itemtype="Connector" objectName="Connector-190" enodeid="enode-181" endpinid="DAC-182-out" Show_id="false" boardRot="-1e+06" x="-296" valLabRot="0" id="Connector-190" labely="-24" pointList="-296,-304,-316,-304" valLabelx="0" rotation="0"/>
+ 
+</circuit>
