@@ -27,7 +27,7 @@ Circuit Id: Tunnel-108
 Unique  Id: Nano-2: 
 Circuit Id: Nano-2
 <item valLabely="75" vflip="1" labelrot="0" circRot="0" y="-400" mainComp="false" circPos="0,0" boardPos="-1e+06,-1e+06" hflip="1" labelx="0" itemtype="Subcircuit" objectName="Nano-2" Show_id="true" boardRot="-1e+06" BoardId="" x="-436" valLabRot="-90" id="Nano-2" labely="-20" valLabelx="29" Logic_Symbol="false" rotation="0">
-  <mainCompProps Program="lgt8_mod_player.hex" Auto_Load="false" Init_gdb="false" Logic_Symbol="false" Mhz="16"/>
+  <mainCompProps Program="arduino_nano_test.hex" Auto_Load="false" Init_gdb="false" Logic_Symbol="false" Mhz="16"/>
  </item>
 
 Unique  Id: Connector-112: 
