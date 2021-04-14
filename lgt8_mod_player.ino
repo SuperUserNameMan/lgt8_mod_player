@@ -21,11 +21,13 @@ volatile const PROGMEM
 //~ #define MOD_DEBUG_ORDER_POS 1
 //~ #define MOD_DEBUG_CHAN 1
 #define MOD_DIRECT_PGM
-//~ #define MOD_PWM_AUDIO // --- TO BE TESTED AND DEBUGGED
+//~ #define MOD_PWM_AUDIO 3 // works on Atmega328p, but not on LGT8Fx yet
 
 #ifndef __LGT8F__
 	#undef MOD_DIRECT_PGM
-	#define MOD_PWM_AUDIO
+	#ifndef MOD_PWM_AUDIO
+		#define MOD_PWM_AUDIO 3 
+	#endif
 #endif
 
 #include "mod_player.h"
@@ -50,7 +52,7 @@ void setup()
 	delay(1000);
 	
 #ifdef MOD_PWM_AUDIO
-	pinMode(3,OUTPUT);
+	pinMode( MOD_PWM_AUDIO, OUTPUT );
 	TCCR2B = TCCR2B & B11111000 | B00000001; // for PWM frequency of 31372.55 Hz
 #else
 	analogReference(DEFAULT);
@@ -143,7 +145,7 @@ void loop()
 		//Serial.println( sample );
 
 #ifdef MOD_PWM_AUDIO
-		digitalWrite( 3, sample );
+		analogWrite( MOD_PWM_AUDIO, sample );
 #else
 		DALR = (uint8_t)( sample );
 		//DALR = (uint8_t)( ( sample / 64 ) + 128 );
@@ -163,3 +165,5 @@ void loop()
 		
 	}
 }
+
+
