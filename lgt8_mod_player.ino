@@ -53,7 +53,9 @@ void setup()
 	
 #ifdef MOD_PWM_AUDIO
 	pinMode( MOD_PWM_AUDIO, OUTPUT );
-	TCCR2B = ( TCCR2B & B11111000 ) | B00000001; // for PWM frequency of 31372.55 Hz
+	
+	// set FastPWM frequency of 31kHz@16MHz or 62kHz@32MHz :
+	TCCR2B = ( TCCR2B & B11111000 ) | B00000001; 
 #else
 	analogReference(DEFAULT);
 	pinMode(DAC0, ANALOG);
