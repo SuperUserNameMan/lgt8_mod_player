@@ -20,14 +20,16 @@ volatile const PROGMEM
 //~ #define MOD_DEBUG
 //~ #define MOD_DEBUG_ORDER_POS 1
 //~ #define MOD_DEBUG_CHAN 1
-#define MOD_DIRECT_PGM
-//~ #define MOD_PWM_AUDIO 3
+
+#define MOD_DIRECT_PGM // direct PROGMEM access only work on LGT8Fx
+
+#define MOD_DAC0_AUDIO // only work on LGT8Fx, (DAC0 is on pin D4)
+//#define MOD_PWM_AUDIO 3 // Fast PWM on pin 3 or 11
+//#define MOD_ADAC_AUDIO // use external DAC on pin A0 to A5 (works on SimulIDE-0.4.15)
 
 #ifndef __LGT8F__
 	#undef MOD_DIRECT_PGM
-	#ifndef MOD_PWM_AUDIO
-		#define MOD_PWM_AUDIO 3 
-	#endif
+	#undef MOD_DAC0_AUDIO
 #endif
 
 #include "mod_player.h"
@@ -56,11 +58,16 @@ void setup()
 	
 	// set FastPWM frequency of 31kHz@16MHz or 62kHz@32MHz :
 	TCCR2B = ( TCCR2B & B11111000 ) | B00000001; 
-#else
+#endif
+
+#ifdef MOD_DAC0_AUDIO
 	analogReference(DEFAULT);
 	pinMode(DAC0, ANALOG);
 #endif
-	
+
+#ifdef MOD_ADAC_AUDIO
+	DDRC = DDRC | 0x00111111; // A0 to A5 as outputs
+#endif
 	Serial.begin(115200);
 	
 	int err = mod_init( &ctx, tune_mod, tune_mod_len, AUDIO_SPS );
@@ -135,23 +142,31 @@ void loop()
 		int32_t sample = mod_render_sample( &ctx, dt ) ;
 		
 		sample = sample / 256 + 128;
-#ifdef MOD_DEBUG
-	if ( sample < 0 || sample > 255 )
-	{
-		Serial.print(F("Sample overflow :"));
-		Serial.print( sample );
-		Serial.println();
-		//ctx.err = 1;
-	}
-#endif
+		
+		#ifdef MOD_DEBUG
+			if ( sample < 0 || sample > 255 )
+			{
+				Serial.print(F("Sample overflow :"));
+				Serial.print( sample );
+				Serial.println();
+				//ctx.err = 1;
+			}
+		#endif
 		//Serial.println( sample );
 
-#ifdef MOD_PWM_AUDIO
-		analogWrite( MOD_PWM_AUDIO, sample );
-#else
-		DALR = (uint8_t)( sample );
-		//DALR = (uint8_t)( ( sample / 64 ) + 128 );
-#endif	
+		#ifdef MOD_PWM_AUDIO
+			analogWrite( MOD_PWM_AUDIO, sample );
+		#endif
+		
+		#ifdef MOD_DACO_AUDIO
+			DALR = (uint8_t)( sample );
+			//DALR = (uint8_t)( ( sample / 64 ) + 128 );
+		#endif	
+		
+		#ifdef MOD_ADAC_AUDIO
+			PORTC = ( PORTC & B11000000 ) | ( ( sample >> 2 ) & B00111111 );
+		#endif
+		
 		digitalWrite( LED_BUILTIN, !(ctx.pattern_line % 4) );
 		
 		while( (micros()-t0) < AUDIO_DT );
