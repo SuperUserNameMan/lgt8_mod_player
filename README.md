@@ -1,5 +1,8 @@
 # lgt8_mod_player
-Play modules soundtracks on a LGT8F32p using the analog output DAC0 on pin 4 or a FastPWM audio output on pin 3 (and it will also work on real ATmega328p @ 16MHz).
+Play modules soundtracks on a LGT8F32p using :
+- the analog output DAC0 on pin 4 ;
+- a FastPWM audio output on pin 3 (it will also work on real ATmega328p @ 16MHz) ;
+- an external 6bits DAC on pins A0 to A5 (it also will work on [SimulIDE](https://www.simulide.com/) ).
 
 This is a quick and dirty port of [pocketmod](https://github.com/rombankzero/pocketmod) to LGT8F328p.
 
