@@ -21,7 +21,7 @@ volatile const PROGMEM
 //~ #define MOD_DEBUG_ORDER_POS 1
 //~ #define MOD_DEBUG_CHAN 1
 #define MOD_DIRECT_PGM
-//~ #define MOD_PWM_AUDIO 3 // works on Atmega328p, but not on LGT8Fx yet
+//~ #define MOD_PWM_AUDIO 3
 
 #ifndef __LGT8F__
 	#undef MOD_DIRECT_PGM
